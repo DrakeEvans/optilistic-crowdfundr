@@ -33,7 +33,7 @@ contract Manager {
     }
 
     modifier isExpired(uint256 _projectId) {
-        require(block.timestamp > projects[_projectId].endDate);
+        require(block.timestamp > projects[_projectId].endDate, "Project is not over");
         _;
     }
 
@@ -43,7 +43,7 @@ contract Manager {
     }
 
     modifier isFullySubscribed(uint256 _projectId) {
-        require(projects[_projectId].totalContributions >= projects[_projectId].goalAmount);
+        require(projects[_projectId].totalContributions >= projects[_projectId].goalAmount, "Project not fully subscribed");
         _;
     }
 
@@ -69,12 +69,12 @@ contract Manager {
         require(sent, "Failed to send Ether");
     }
 
-    function withdrawFunds(uint256 _projectId) external isExpired(_projectId) isFullySubscribed(_projectId) projectOwnerOnly(_projectId) {
-        uint256 valueToSend = projects[_projectId].totalContributions;
+    function withdrawFunds(uint256 _projectId, uint percent) external isFullySubscribed(_projectId) projectOwnerOnly(_projectId) {
+        uint256 valueToSend = projects[_projectId].totalContributions / percent;
         projects[_projectId].totalContributions = 0;
         require(valueToSend > 0, "No funds to withdraw");
         (bool sent,) = msg.sender.call{value: valueToSend}("");
-        require(sent, "Failed to withdraw Ether]");
+        require(sent, "Failed to withdraw Ether");
     }
 
     function registerProject(uint _goalAmount) external returns (uint){
