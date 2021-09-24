@@ -11,10 +11,10 @@ contract Manager {
         uint256 totalContributions;
     }
 
-    Project[] private projects;
+    Project[] public projects;
 
     // address => projectId => amount
-    mapping(address => mapping(uint256 => uint256)) totalContributionsByAddressByProjectId;
+    mapping(address => mapping(uint256 => uint256)) public totalContributionsByAddressByProjectId;
 
 
     event ProjectRegistered(address indexed _owner, uint indexed _projectId);
