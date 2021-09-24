@@ -133,7 +133,31 @@ describe('Manager Contract', () => {
           .withdrawFunds(1, 100)
           .then((tx: any) => tx.wait())
       ).to.be.revertedWith('Project not fully subscribed');
+    });
+    it('Should allow withdrawal after contribution met', async () => {
+      const Manager = await ethers.getContractFactory('Manager');
+      const manager = await Manager.deploy();
+      const [, ...addresses] = await ethers.getSigners();
+      await manager.deployed();
+      await manager
+        .connect(addresses[0])
+        .registerProject((2e18).toString())
+        .then((tx: any) => tx.wait());
+      await manager
+        .connect(addresses[0])
+        .registerProject((2e18).toString())
+        .then((tx: any) => tx.wait());
 
+      await manager
+        .connect(addresses[1])
+        .contributeToProject(1, { value: ethers.BigNumber.from((3e18).toString()) })
+        .then((tx: any) => tx.wait());
+
+      const withdrawResponse = await manager
+        .connect(addresses[0])
+        .withdrawFunds(1, 100)
+        .then((tx: any) => tx.wait());
+      expect(!!withdrawResponse).to.equal(true);
     });
   });
 });
